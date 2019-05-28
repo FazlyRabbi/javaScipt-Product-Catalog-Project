@@ -10,33 +10,29 @@ const productPrice = document.getElementById("product-price");
 
 const submit = document.getElementById("add-button");
 
-const deletProduct = document.getElementById("deletIcon");
-
-const productDelet = document.getElementById("deletIcon");
-
 const emtyPorduct = document.getElementById("emtyPorduct");
 //***********************************************************
 
 //data /state
 
-const productData = [];
+let productData = [];
 
 // create productData item
 
 function getDate(productDatas) {
-  let li = " ";
   if (productDatas.length > 0) {
     emtyPorduct.innerText = "";
+
     productDatas.forEach(product => {
-      li = document.createElement("li");
+      let li = document.createElement("li");
       li.className = "list-group-item d-flex";
       li.id = `product-${product.id}`;
       li.innerHTML = `
             
      </strong>${product.name}</strong>
      <span id="price">-$${product.price}</span>
-     <span id="deletIcon" class="ml-auto"></span>
-     <i class="fas fa-trash-alt"></i>
+     <span  class="ml-auto "  >
+     <i class="fas fa-trash-alt" id="deletProduct"></i>
      </span>
             
             `;
@@ -53,14 +49,12 @@ getDate(productData);
 submit.addEventListener("click", e => {
   e.preventDefault();
 
-  let id ;
+  let id;
 
-  if(productData.length === 0){
-
+  if (productData.length === 0) {
     id = 0;
-  }else{
-
-    id = productData[productData.length - 1].id + 1;;
+  } else {
+    id = productData[productData.length - 1].id + 1;
   }
 
   const name = productName.value;
@@ -81,6 +75,27 @@ submit.addEventListener("click", e => {
 
     productName.value = "";
     productPrice.value = "";
-    console.log(productData);
+  }
+});
+
+//delete itme
+
+productCollection.addEventListener("click", e => {
+  if (e.target.id === "deletProduct") {
+    // remove frome the ui
+    const target = e.target.parentElement.parentElement;
+    e.target.parentElement.parentElement.parentElement.removeChild(target);
+
+    //remove frome the date
+    //getting id
+
+    const id = parseInt(target.id.split("-")[1]);
+
+    //return result array
+    const result = productData.filter(product => {
+      return product.id !== id;
+    });
+
+    productData = result;
   }
 });
