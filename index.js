@@ -1,101 +1,137 @@
-//selection***********************************************
+window.onload = function() {
+  //selection***********************************************
 
-const inputFilter = document.getElementById("inputFilter");
+  const inputFilter = document.getElementById("inputFilter");
 
-const productCollection = document.getElementById("product-collection");
+  const productCollection = document.getElementById("product-collection");
 
-const productName = document.getElementById("product-name");
+  const productName = document.getElementById("product-name");
 
-const productPrice = document.getElementById("product-price");
+  const productPrice = document.getElementById("product-price");
 
-const submit = document.getElementById("add-button");
+  const submit = document.getElementById("add-button");
 
-const emtyPorduct = document.getElementById("emtyPorduct");
-//***********************************************************
+  const massages = document.getElementById("emtyPorduct");
 
-//data /state
+  //***********************************************************
 
-let productData = [];
+  //data /state
 
-// create productData item
+  let productData = [];
 
-function getDate(productDatas) {
-  if (productDatas.length > 0) {
-    emtyPorduct.innerText = "";
+  // create massege funciton
 
-    productDatas.forEach(product => {
-      let li = document.createElement("li");
-      li.className = "list-group-item d-flex";
-      li.id = `product-${product.id}`;
-      li.innerHTML = `
-            
-     </strong>${product.name}</strong>
-     <span id="price">-$${product.price}</span>
-     <span  class="ml-auto "  >
-     <i class="fas fa-trash-alt" id="deletProduct"></i>
-     </span>
-            
-            `;
-
-      productCollection.appendChild(li);
-    });
-  } else {
-    emtyPorduct.innerText = "no item to show ";
-  }
-}
-
-getDate(productData);
-
-submit.addEventListener("click", e => {
-  e.preventDefault();
-
-  let id;
-
-  if (productData.length === 0) {
-    id = 0;
-  } else {
-    id = productData[productData.length - 1].id + 1;
+  function massage(showMassage) {
+    massages.innerHTML = showMassage;
   }
 
-  const name = productName.value;
+  // create productData item
 
-  const price = productPrice.value;
+  function getDate(productDatas) {
+    if (productDatas.length > 0) {
+      massages.innerText = "";
 
-  if (name === " " || price === "") {
-    alert("please fill up necessary information");
-  } else {
-    productData.push({
-      id,
-      name,
-      price
-    });
+      //travarce the array elemets
+      productDatas.forEach(({ id, name, price }) => {
+        let li = document.createElement("li");
+        li.className = "list-group-item  collection-item";
+        li.id = `product-${id}`;
+        li.innerHTML = `<strong>${name}</strong><span id="price">-$${price}</span><i class="fas fa-trash-alt float-right" id="deletProduct"></i>`;
 
-    productCollection.innerHTML = " ";
-    getDate(productData);
-
-    productName.value = "";
-    productPrice.value = "";
+        productCollection.appendChild(li);
+      });
+    } else {
+      massage("please add some item");
+    }
   }
-});
 
-//delete itme
+  //call the getData function
 
-productCollection.addEventListener("click", e => {
-  if (e.target.id === "deletProduct") {
-    // remove frome the ui
-    const target = e.target.parentElement.parentElement;
-    e.target.parentElement.parentElement.parentElement.removeChild(target);
+  getDate(productData);
 
-    //remove frome the date
-    //getting id
+  // add  item
 
-    const id = parseInt(target.id.split("-")[1]);
+  const addItem = e => {
+    e.preventDefault();
 
-    //return result array
-    const result = productData.filter(product => {
-      return product.id !== id;
-    });
+    let id;
 
-    productData = result;
-  }
-});
+    if (productData.length === 0) {
+      id = 0;
+    } else {
+      id = productData[productData.length - 1].id + 1;
+    }
+
+    const name = productName.value;
+
+    const price = productPrice.value;
+
+    if (name === " " || price === "") {
+      alert("please fill up necessary information");
+    } else {
+      productData.push({
+        id,
+        name,
+        price
+      });
+
+      productCollection.innerHTML = " ";
+      getDate(productData);
+
+      productName.value = "";
+      productPrice.value = "";
+    }
+  };
+
+  //Searching product
+
+  const Searching = () => {
+    const text = event.target.value.toLowerCase();
+
+    document
+      .querySelectorAll("#product-collection .collection-item")
+      .forEach(e => {
+        const productItemName = e.firstElementChild.textContent.toLowerCase();
+
+        if (productItemName.indexOf(text) === -1) {
+          massage("No item in your critaria");
+          e.style.display = "none";
+        } else {
+          massage("");
+          e.style.display = "block";
+        }
+      });
+  };
+
+  //Delete itme
+
+  const DeleteItem = e => {
+    if (e.target.id === "deletProduct") {
+      // remove frome the ui
+      const targets = e.target.parentElement;
+      e.target.parentElement.parentElement.removeChild(targets);
+
+      //remove frome the date
+      //getting id
+      const id = parseInt(targets.id.split("-")[1]);
+
+      //return result array
+      const result = productData.filter(product => {
+        return product.id !== id;
+      });
+
+      productData = result;
+    }
+  };
+
+  //Event listenar call with funciton
+
+  //add item
+  submit.addEventListener("click", addItem);
+
+  //searching product
+  inputFilter.addEventListener("keyup", Searching);
+
+  //delet item
+  productCollection.addEventListener("click", DeleteItem);
+};
