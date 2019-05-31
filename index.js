@@ -17,7 +17,23 @@ window.onload = function() {
 
   //data /state
 
-  let productData = [];
+  let productData = getDataFromLocalStorage();
+
+  // localStorage product item
+
+  function getDataFromLocalStorage() {
+    let items = "";
+
+    if (localStorage.getItem("productItme") === null) {
+      items = [];
+    } else {
+      items = JSON.parse(localStorage.getItem("productItme"));
+    }
+
+  
+
+    return items;
+  }
 
   // create massege funciton
 
@@ -49,6 +65,26 @@ window.onload = function() {
 
   getDate(productData);
 
+  //add item in localStorage
+
+  function saveDateToLocalStorage(item) {
+    let items = "";
+
+    if (localStorage.getItem("productItme") === null) {
+      items = [];
+      items.push(item);
+      localStorage.setItem("productItme", JSON.stringify(items));
+    } else {
+      items = JSON.parse(localStorage.getItem("productItme"));
+
+      items.push(item);
+
+      localStorage.setItem("productItme", JSON.stringify(items));
+    }
+
+
+  }
+
   // add  item
 
   const addItem = e => {
@@ -69,11 +105,15 @@ window.onload = function() {
     if (name === " " || price === "") {
       alert("please fill up necessary information");
     } else {
-      productData.push({
+      const data = {
         id,
         name,
         price
-      });
+      };
+
+      productData.push(data);
+
+      saveDateToLocalStorage(data);
 
       productCollection.innerHTML = " ";
       getDate(productData);
@@ -93,15 +133,31 @@ window.onload = function() {
       .forEach(e => {
         const productItemName = e.firstElementChild.textContent.toLowerCase();
 
-        if (productItemName.indexOf(text) === -1) {
-          massage("No item in your critaria");
-          e.style.display = "none";
-        } else {
-          massage("");
+        if (productItemName.indexOf(text) !== -1) {
           e.style.display = "block";
+
+          massage("");
+        } else if (productItemName.indexOf(text) === -1) {
+          e.style.display = "none";
+
+          massage("No item in your critaria");
         }
       });
   };
+
+  //Delelete items frome locatStorage
+
+  function deletDataFromeLocalStorage(id) {
+    const items = JSON.parse(localStorage.getItem("productItme"));
+
+    let result = items.filter(product => {
+      return product.id !== id;
+    });
+
+    localStorage.setItem("productItme", JSON.stringify(result));
+
+    if(result.length === 0) location.reload();
+  }
 
   //Delete itme
 
@@ -114,7 +170,7 @@ window.onload = function() {
       //remove frome the date
       //getting id
       const id = parseInt(targets.id.split("-")[1]);
-
+      deletDataFromeLocalStorage(id);
       //return result array
       const result = productData.filter(product => {
         return product.id !== id;
@@ -125,7 +181,6 @@ window.onload = function() {
   };
 
   //Event listenar call with funciton
-
   //add item
   submit.addEventListener("click", addItem);
 
